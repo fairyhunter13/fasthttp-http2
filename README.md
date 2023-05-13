@@ -1,3 +1,5 @@
+> ⚠️ We have **no plans** to maintain our set of fixes for this package, and it seems the original project is **no longer being maintained**... (as of 14th May 2023).
+
 # HTTP2
 http2 is an implementation of HTTP/2 protocol for [fasthttp](https://github.com/valyala/fasthttp).
 
