@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/valyala/fasthttp"
@@ -49,11 +50,16 @@ type Ctx struct {
 	Response *fasthttp.Response
 	Err      chan error
 
-	streamID uint32
+	streamID        uint32
+	isErrChanClosed uint32
 }
 
 // resolve will resolve the context, meaning that provided an error,
 func (ctx *Ctx) resolve(err error) {
+	if atomic.LoadUint32(&ctx.isErrChanClosed) == 1 {
+		return
+	}
+
 	select {
 	case ctx.Err <- err:
 	default:
@@ -172,6 +178,7 @@ func (cl *Client) Do(req *fasthttp.Request, res *fasthttp.Response) (err error) 
 		cancelTimer.Stop()
 	}
 
+	atomic.StoreUint32(&ctx.isErrChanClosed, 1)
 	close(ch)
 
 	return err
